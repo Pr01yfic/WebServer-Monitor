@@ -21,8 +21,8 @@ $error.clear()
 $serverlist = ($servergroup  -join ", ")
 $checkcount = $null
 $tokentest = 0
-[string[]]$recipients = "<jdavidson@tsvg.com>"
-[string[]]$txtrecips = "<testgroup@tsvg.com>"
+[string[]]$recipients = "<>"
+[string[]]$txtrecips = "<>"
 $body = "Server Monitor Fault Report</br>"
 $body+="-------------------------------</br></br>"
 $txt = "IIS error(s): "
@@ -53,12 +53,12 @@ Foreach($server in $servergroup)
               $invokereturn = invoke-command -computername "$iisserver" -scriptblock `
                 {
                   import-module WebAdministration
-                  stop-website "TSVG.WebAPI.Auth"
-                  stop-website "TSVG.WebAPI.DataBee"                  
-                  stop-website "TSVG.WebAPI.Resource"
-                  start-website "TSVG.WebAPI.Auth"
-                  start-website "TSVG.WebAPI.DataBee"
-                  start-website "TSVG.WebAPI.Resource" 
+                  stop-website ""
+                  stop-website ""                  
+                  stop-website ""
+                  start-website ""
+                  start-website ""
+                  start-website "" 
                 }
             }
           if(!(Test-Connection -Computername $server -Count 1 -ea 0))
@@ -93,7 +93,7 @@ Foreach($server in $servergroup)
 # If statuscode is anything but 200, restart all 3 sites
 try
   {
-    $pingsite = invoke-webrequest http://172.18.0.16:8082/Core/Ping
+    $pingsite = invoke-webrequest 
     $pingstatus = $pingsite.StatusCode
     if ($pingsite.StatusCode -ne 200)                                      
       {
@@ -105,12 +105,12 @@ try
             $invokereturn = invoke-command -computername "$iisserver" -scriptblock `
               {
                 import-module WebAdministration
-                stop-website "TSVG.WebAPI.Auth"
-                stop-website "TSVG.WebAPI.DataBee"
-                stop-website "TSVG.WebAPI.Resource"         
-                start-website "TSVG.WebAPI.Auth"
-                start-website "TSVG.WebAPI.DataBee"
-                start-website "TSVG.WebAPI.Resource"               
+                stop-website ""
+                stop-website ""
+                stop-website ""         
+                start-website ""
+                start-website ""
+                start-website ""               
               }
           }
       }
@@ -130,11 +130,11 @@ catch
 
 # Request token, if token grant fails for any reason, restart all 3 sites 
 $reqbody = @{
-    Client_id = "3001"
-    Client_secret = "F9C4628F-6AEE-4AF3-A0F0-D1A873CAB1DB"
-    Username = "service"
-    Password = "43C99B57-BBDF-400E-94CC-230C712C12F1"
-    grant_type = "password"
+    Client_id = ""
+    Client_secret = ""
+    Username = ""
+    Password = ""
+    grant_type = ""
   }
 try 
   {
@@ -151,12 +151,12 @@ catch
         $invokereturn = invoke-command -computername "$iisserver" -scriptblock `
           {
             import-module WebAdministration
-            stop-website "TSVG.WebAPI.Auth"
-            stop-website "TSVG.WebAPI.DataBee"
-            stop-website "TSVG.WebAPI.Resource"         
-            start-website "TSVG.WebAPI.Auth"
-            start-website "TSVG.WebAPI.DataBee"
-            start-website "TSVG.WebAPI.Resource"               
+            stop-website ""
+            stop-website ""
+            stop-website ""         
+            start-website ""
+            start-website ""
+            start-website ""               
           }
       }
 
@@ -189,7 +189,7 @@ If ($tokentest -eq 0)
         # If status code is anything but 200, restart WebAPI.Resource
     Try
       {
-        $checkcount = Invoke-WebRequest -uri http://172.18.0.16:8082/DataBee/Data/Queue/Count -Headers $pingheaders 
+        $checkcount = Invoke-WebRequest -uri  -Headers $pingheaders 
         if ($checkcount.StatusCode -ne 200)
           {
             $errorcount+= 1
@@ -263,7 +263,7 @@ If ($tokentest -eq 0)
             start-sleep -Seconds 300
             Try                                # Checking status code is 200 again, restarting WebAPI.Resource if not
               {
-                $checkcount = Invoke-WebRequest -uri http://172.18.0.16:8082/DataBee/Data/Queue/Count -Headers $pingheaders 
+                $checkcount = Invoke-WebRequest -uri  -Headers $pingheaders 
                 if ($checkcount.StatusCode -ne 200)
                   {
                     $errorcount+= 1
